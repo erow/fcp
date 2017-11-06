@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+message FcpMessage {
+    string dst_uri=1;
+	string src_uri=4;
+	enum FcpType{
+			POSTUP=0;
+			POSTDOWN=1;
+			EXTPOST=4;
+			SUBSCRIBE=2;
+			UNSUBSCRIBE=3;
+	}
+	FcpType type=2;
+	string data=3;
+}
