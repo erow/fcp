@@ -3,49 +3,21 @@
 
 #include "stdafx.h"
 #include "Node_.h"
+#include "FunctionalNodecpp.h"
+#include "msg/light.pb.h"
+#include "MasterNode.h"
 
-class Node:
-	public Node_
-{
-public:
-	Node();
-	~Node();
-	int handleMsg(const FcpMessage& fcp) {
-		const string& uri = fcp.dst_uri();
-		int rel = m_path.relation(uri);
-		if (rel == (int)relType::parent) {
-			FcpMessage t_fcp = fcp;
-			t_fcp.set_type(FcpMessage_FcpType_POSTUP);
-			sendMsg(t_fcp);
-		}
-		else if (rel == (int)relType::self) {
-
-		}
-		else if (rel == (int)relType::brother) {
-			
-		}
-		else if (rel == (int)relType::child) {
-
-		}
-		return 0;
-	}
-	int Tx(const std::string& data) {
-		return Rx(data);
-	}
-private:
-
-};
-
-Node::Node()
-{
-}
-
-Node::~Node()
-{
-}
+MasterNode nh;
 int main()
 {
-	Node a;
+	FunctionalNode<LightMessage> a([](const LightMessage& msg) {
+		printf("call fun. status:%d\n", msg.status());
+	});
+	LightMessage l;
+	l.set_status(32);
+	FcpMessage msg;
+	msg.set_data(l.SerializeAsString());
+	a.sendMsg(msg);
     return 0;
 }
 

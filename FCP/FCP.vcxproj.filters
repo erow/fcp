@@ -30,6 +30,18 @@
     <ClInclude Include="path.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="mNode.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FunctionalNodecpp.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="msg\light.pb.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MasterNode.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -47,6 +59,18 @@
     <ClCompile Include="Node_.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="mNode.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FunctionalNode.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="msg\light.pb.cc">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="MasterNode.cpp">
+      <Filter>头文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -54,6 +78,9 @@
   <ItemGroup>
     <None Include="..\README.md" />
     <None Include="msg\fcp.proto">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="msg\light.proto">
       <Filter>资源文件</Filter>
     </None>
   </ItemGroup>
