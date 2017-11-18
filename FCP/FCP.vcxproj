@@ -73,9 +73,11 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <LibraryPath>C:\protobuf-cpp-3.3.0\protobuf-3.1.0\install\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\wasai\Documents\Visual Studio 2017\Projects\FCP\packages\spdlog-0.14.0\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>C:\Users\wasai\Documents\Visual Studio 2017\Projects\FCP\packages\spdlog-0.14.0\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -146,7 +148,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="FunctionalNodecpp.h" />
+    <ClInclude Include="FunctionalNode.h" />
     <ClInclude Include="MasterNode.h" />
     <ClInclude Include="mNode.h" />
     <ClInclude Include="msg\fcp.pb.h" />
@@ -155,6 +157,7 @@
     <ClInclude Include="path.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="TcpNode.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FCP.cpp" />
@@ -166,6 +169,7 @@
     <ClCompile Include="Node_.cpp" />
     <ClCompile Include="path.cpp" />
     <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="TcpNode.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\README.md" />

@@ -1,19 +1,20 @@
 #pragma once
-#include "Node_.h"
+#include "mNode.h"
 #include<functional>
 #include"msg/fcp.pb.h"
 template <class T>
 class FunctionalNode :
-	public Node_
+	public DownNode_
 {
 protected:
 	typedef void(*FunctionType)(const T&);
 	Node_* m_gateway = nullptr;
 	int handleMsg(const FcpMessage& msg)
 	{
+		assert((msg.type() == FcpMessage_FcpType::FcpMessage_FcpType_Publish) || msg.type() == FcpMessage_FcpType::FcpMessage_FcpType_ExtPublish);
 		T t;
 		t.ParseFromString(msg.data());
-		Log(logger, "exec from:%s to:%s\n", msg.src_uri().c_str(), msg.dst_uri().c_str());
+		Logger->debug("exec from:{} to:{}\n", msg.src_uri().c_str(), msg.dst_uri().c_str());
 		m_fun(t);
 		return 0;
 	}
@@ -30,7 +31,8 @@ public:
 	}
 	int Tx(const std::string& data)
 	{
-		return Rx(data);
+		if(m_gateway)
+			return m_gateway->Rx(data);
 	}
 	void setGateway(Node_* top) {
 		m_gateway = top;

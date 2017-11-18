@@ -11,7 +11,7 @@ class MasterNode :
 {
 protected:
 	std::map<string, string> m_subscriber_map;
-	int handleLocal(const FcpMessage & fcp);
+
 public:
 	MasterNode();
 	~MasterNode();

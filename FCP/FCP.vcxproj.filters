@@ -33,13 +33,16 @@
     <ClInclude Include="mNode.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="FunctionalNodecpp.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="msg\light.pb.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="MasterNode.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FunctionalNode.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="TcpNode.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -70,6 +73,9 @@
     </ClCompile>
     <ClCompile Include="MasterNode.cpp">
       <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="TcpNode.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -35,11 +35,12 @@ void protobuf_AssignDesc_fcp_2eproto() {
       "fcp.proto");
   GOOGLE_CHECK(file != NULL);
   FcpMessage_descriptor_ = file->message_type(0);
-  static const int FcpMessage_offsets_[4] = {
+  static const int FcpMessage_offsets_[5] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FcpMessage, dst_uri_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FcpMessage, src_uri_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FcpMessage, type_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FcpMessage, data_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FcpMessage, direction_),
   };
   FcpMessage_reflection_ =
     ::google::protobuf::internal::GeneratedMessageReflection::NewGeneratedMessageReflection(
@@ -94,11 +95,12 @@ void protobuf_AddDesc_fcp_2eproto_impl() {
 
   protobuf_InitDefaults_fcp_2eproto();
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-    "\n\tfcp.proto\"\261\001\n\nFcpMessage\022\017\n\007dst_uri\030\001 "
+    "\n\tfcp.proto\"\272\001\n\nFcpMessage\022\017\n\007dst_uri\030\001 "
     "\001(\t\022\017\n\007src_uri\030\004 \001(\t\022!\n\004type\030\002 \001(\0162\023.Fcp"
-    "Message.FcpType\022\014\n\004data\030\003 \001(\t\"P\n\007FcpType"
-    "\022\n\n\006POSTUP\020\000\022\014\n\010POSTDOWN\020\001\022\013\n\007EXTPOST\020\004\022"
-    "\r\n\tSUBSCRIBE\020\002\022\017\n\013UNSUBSCRIBE\020\003b\006proto3", 199);
+    "Message.FcpType\022\014\n\004data\030\003 \001(\t\022\021\n\tdirecti"
+    "on\030\005 \001(\005\"F\n\007FcpType\022\013\n\007Publish\020\000\022\016\n\nExtP"
+    "ublish\020\002\022\r\n\tSUBSCRIBE\020\003\022\017\n\013UNSUBSCRIBE\020\004"
+    "b\006proto3", 208);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "fcp.proto", &protobuf_RegisterTypes);
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_fcp_2eproto);
@@ -135,7 +137,6 @@ const ::google::protobuf::EnumDescriptor* FcpMessage_FcpType_descriptor() {
 bool FcpMessage_FcpType_IsValid(int value) {
   switch (value) {
     case 0:
-    case 1:
     case 2:
     case 3:
     case 4:
@@ -146,9 +147,8 @@ bool FcpMessage_FcpType_IsValid(int value) {
 }
 
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
-const FcpMessage_FcpType FcpMessage::POSTUP;
-const FcpMessage_FcpType FcpMessage::POSTDOWN;
-const FcpMessage_FcpType FcpMessage::EXTPOST;
+const FcpMessage_FcpType FcpMessage::Publish;
+const FcpMessage_FcpType FcpMessage::ExtPublish;
 const FcpMessage_FcpType FcpMessage::SUBSCRIBE;
 const FcpMessage_FcpType FcpMessage::UNSUBSCRIBE;
 const FcpMessage_FcpType FcpMessage::FcpType_MIN;
@@ -160,6 +160,7 @@ const int FcpMessage::kDstUriFieldNumber;
 const int FcpMessage::kSrcUriFieldNumber;
 const int FcpMessage::kTypeFieldNumber;
 const int FcpMessage::kDataFieldNumber;
+const int FcpMessage::kDirectionFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 FcpMessage::FcpMessage()
@@ -184,7 +185,8 @@ void FcpMessage::SharedCtor() {
   dst_uri_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   src_uri_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   data_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  type_ = 0;
+  ::memset(&type_, 0, reinterpret_cast<char*>(&direction_) -
+    reinterpret_cast<char*>(&type_) + sizeof(direction_));
   _cached_size_ = 0;
 }
 
@@ -226,10 +228,30 @@ FcpMessage* FcpMessage::New(::google::protobuf::Arena* arena) const {
 
 void FcpMessage::Clear() {
 // @@protoc_insertion_point(message_clear_start:FcpMessage)
+#if defined(__clang__)
+#define ZR_HELPER_(f) \
+  _Pragma("clang diagnostic push") \
+  _Pragma("clang diagnostic ignored \"-Winvalid-offsetof\"") \
+  __builtin_offsetof(FcpMessage, f) \
+  _Pragma("clang diagnostic pop")
+#else
+#define ZR_HELPER_(f) reinterpret_cast<char*>(\
+  &reinterpret_cast<FcpMessage*>(16)->f)
+#endif
+
+#define ZR_(first, last) do {\
+  ::memset(&(first), 0,\
+           ZR_HELPER_(last) - ZR_HELPER_(first) + sizeof(last));\
+} while (0)
+
+  ZR_(type_, direction_);
   dst_uri_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   src_uri_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  type_ = 0;
   data_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+
+#undef ZR_HELPER_
+#undef ZR_
+
 }
 
 bool FcpMessage::MergePartialFromCodedStream(
@@ -304,6 +326,21 @@ bool FcpMessage::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
+        if (input->ExpectTag(40)) goto parse_direction;
+        break;
+      }
+
+      // optional int32 direction = 5;
+      case 5: {
+        if (tag == 40) {
+         parse_direction:
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &direction_)));
+        } else {
+          goto handle_unusual;
+        }
         if (input->ExpectAtEnd()) goto success;
         break;
       }
@@ -368,6 +405,11 @@ void FcpMessage::SerializeWithCachedSizes(
       4, this->src_uri(), output);
   }
 
+  // optional int32 direction = 5;
+  if (this->direction() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(5, this->direction(), output);
+  }
+
   // @@protoc_insertion_point(serialize_end:FcpMessage)
 }
 
@@ -414,6 +456,11 @@ void FcpMessage::SerializeWithCachedSizes(
         4, this->src_uri(), target);
   }
 
+  // optional int32 direction = 5;
+  if (this->direction() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(5, this->direction(), target);
+  }
+
   // @@protoc_insertion_point(serialize_to_array_end:FcpMessage)
   return target;
 }
@@ -447,6 +494,13 @@ size_t FcpMessage::ByteSizeLong() const {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::StringSize(
         this->data());
+  }
+
+  // optional int32 direction = 5;
+  if (this->direction() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->direction());
   }
 
   int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
@@ -497,6 +551,9 @@ void FcpMessage::UnsafeMergeFrom(const FcpMessage& from) {
 
     data_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.data_);
   }
+  if (from.direction() != 0) {
+    set_direction(from.direction());
+  }
 }
 
 void FcpMessage::CopyFrom(const ::google::protobuf::Message& from) {
@@ -527,6 +584,7 @@ void FcpMessage::InternalSwap(FcpMessage* other) {
   src_uri_.Swap(&other->src_uri_);
   std::swap(type_, other->type_);
   data_.Swap(&other->data_);
+  std::swap(direction_, other->direction_);
   _internal_metadata_.Swap(&other->_internal_metadata_);
   std::swap(_cached_size_, other->_cached_size_);
 }
@@ -686,6 +744,20 @@ void FcpMessage::set_allocated_data(::std::string* data) {
   }
   data_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), data);
   // @@protoc_insertion_point(field_set_allocated:FcpMessage.data)
+}
+
+// optional int32 direction = 5;
+void FcpMessage::clear_direction() {
+  direction_ = 0;
+}
+::google::protobuf::int32 FcpMessage::direction() const {
+  // @@protoc_insertion_point(field_get:FcpMessage.direction)
+  return direction_;
+}
+void FcpMessage::set_direction(::google::protobuf::int32 value) {
+  
+  direction_ = value;
+  // @@protoc_insertion_point(field_set:FcpMessage.direction)
 }
 
 inline const FcpMessage* FcpMessage::internal_default_instance() {

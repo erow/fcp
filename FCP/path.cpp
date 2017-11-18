@@ -119,6 +119,7 @@ int Path::relation(const string & abs_uri)
 const string Path::abs_uri(const string & uri)
 {
 	auto path = m_path;
+
 	if (uri[0] == '/')
 		return uri;
 	else if ((uri.substr(0, 3) == "../") || (uri.substr(0, 2) == "./")) {

@@ -1,12 +1,7 @@
 #include "Node_.h"
 #include "path.h"
 
-int Node_::sendMsg(const FcpMessage & msg)
-{
-	Log(logger, "sendMsg from: %s-%s\n", m_deal.c_str(), m_path.abs_uri().c_str());
-	auto data = msg.SerializeAsString();
-	return Tx(std::to_string(data.size()) + ":" + data);
-}
+
 
 void Node_::setPath(const string & path)
 {

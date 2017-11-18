@@ -4,14 +4,11 @@
 #include<functional>
 #include"msg/fcp.pb.h"
 #include "path.h"
+#include <spdlog\spdlog.h>
+
 using std::string;
-#define DEBUG
-#ifdef DEBUG
 
-#define Log(logger,format, ...) printf("D>> " format,##__VA_ARGS__)
-#else
-#endif // DEBUG
-
+extern std::shared_ptr<spdlog::logger> Logger ;
 
 class Node_ {
 protected:
@@ -22,10 +19,9 @@ protected:
 	int msg_size = 0;
 
 public:
-	int sendMsg(const FcpMessage&);
+	virtual int sendMsg(const FcpMessage&) =0;
+	virtual int handleMsg(const FcpMessage&) = 0;
 	void setPath(const string& path);
 	int Rx(const std::string&);
-
-	virtual int handleMsg(const FcpMessage&) = 0;
 	virtual int Tx(const std::string&) = 0;
 };

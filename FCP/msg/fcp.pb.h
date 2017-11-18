@@ -39,17 +39,16 @@ void protobuf_ShutdownFile_fcp_2eproto();
 class FcpMessage;
 
 enum FcpMessage_FcpType {
-  FcpMessage_FcpType_POSTUP = 0,
-  FcpMessage_FcpType_POSTDOWN = 1,
-  FcpMessage_FcpType_EXTPOST = 4,
-  FcpMessage_FcpType_SUBSCRIBE = 2,
-  FcpMessage_FcpType_UNSUBSCRIBE = 3,
+  FcpMessage_FcpType_Publish = 0,
+  FcpMessage_FcpType_ExtPublish = 2,
+  FcpMessage_FcpType_SUBSCRIBE = 3,
+  FcpMessage_FcpType_UNSUBSCRIBE = 4,
   FcpMessage_FcpType_FcpMessage_FcpType_INT_MIN_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32min,
   FcpMessage_FcpType_FcpMessage_FcpType_INT_MAX_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32max
 };
 bool FcpMessage_FcpType_IsValid(int value);
-const FcpMessage_FcpType FcpMessage_FcpType_FcpType_MIN = FcpMessage_FcpType_POSTUP;
-const FcpMessage_FcpType FcpMessage_FcpType_FcpType_MAX = FcpMessage_FcpType_EXTPOST;
+const FcpMessage_FcpType FcpMessage_FcpType_FcpType_MIN = FcpMessage_FcpType_Publish;
+const FcpMessage_FcpType FcpMessage_FcpType_FcpType_MAX = FcpMessage_FcpType_UNSUBSCRIBE;
 const int FcpMessage_FcpType_FcpType_ARRAYSIZE = FcpMessage_FcpType_FcpType_MAX + 1;
 
 const ::google::protobuf::EnumDescriptor* FcpMessage_FcpType_descriptor();
@@ -126,12 +125,10 @@ class FcpMessage : public ::google::protobuf::Message /* @@protoc_insertion_poin
   // nested types ----------------------------------------------------
 
   typedef FcpMessage_FcpType FcpType;
-  static const FcpType POSTUP =
-    FcpMessage_FcpType_POSTUP;
-  static const FcpType POSTDOWN =
-    FcpMessage_FcpType_POSTDOWN;
-  static const FcpType EXTPOST =
-    FcpMessage_FcpType_EXTPOST;
+  static const FcpType Publish =
+    FcpMessage_FcpType_Publish;
+  static const FcpType ExtPublish =
+    FcpMessage_FcpType_ExtPublish;
   static const FcpType SUBSCRIBE =
     FcpMessage_FcpType_SUBSCRIBE;
   static const FcpType UNSUBSCRIBE =
@@ -198,6 +195,12 @@ class FcpMessage : public ::google::protobuf::Message /* @@protoc_insertion_poin
   ::std::string* release_data();
   void set_allocated_data(::std::string* data);
 
+  // optional int32 direction = 5;
+  void clear_direction();
+  static const int kDirectionFieldNumber = 5;
+  ::google::protobuf::int32 direction() const;
+  void set_direction(::google::protobuf::int32 value);
+
   // @@protoc_insertion_point(class_scope:FcpMessage)
  private:
 
@@ -206,6 +209,7 @@ class FcpMessage : public ::google::protobuf::Message /* @@protoc_insertion_poin
   ::google::protobuf::internal::ArenaStringPtr src_uri_;
   ::google::protobuf::internal::ArenaStringPtr data_;
   int type_;
+  ::google::protobuf::int32 direction_;
   mutable int _cached_size_;
   friend void  protobuf_InitDefaults_fcp_2eproto_impl();
   friend void  protobuf_AddDesc_fcp_2eproto_impl();
@@ -368,6 +372,20 @@ inline void FcpMessage::set_allocated_data(::std::string* data) {
   }
   data_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), data);
   // @@protoc_insertion_point(field_set_allocated:FcpMessage.data)
+}
+
+// optional int32 direction = 5;
+inline void FcpMessage::clear_direction() {
+  direction_ = 0;
+}
+inline ::google::protobuf::int32 FcpMessage::direction() const {
+  // @@protoc_insertion_point(field_get:FcpMessage.direction)
+  return direction_;
+}
+inline void FcpMessage::set_direction(::google::protobuf::int32 value) {
+  
+  direction_ = value;
+  // @@protoc_insertion_point(field_set:FcpMessage.direction)
 }
 
 inline const FcpMessage* FcpMessage::internal_default_instance() {

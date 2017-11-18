@@ -4,12 +4,13 @@ message FcpMessage {
     string dst_uri=1;
 	string src_uri=4;
 	enum FcpType{
-			POSTUP=0;
-			POSTDOWN=1;
-			EXTPOST=4;
-			SUBSCRIBE=2;
-			UNSUBSCRIBE=3;
+			Publish=0;
+			ExtPublish=2;
+			SUBSCRIBE=3;
+			UNSUBSCRIBE=4;
 	}
 	FcpType type=2;
 	string data=3;
+	
+	int32 direction=5;
 }
