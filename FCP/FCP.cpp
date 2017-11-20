@@ -21,7 +21,7 @@ int main()
 	Logger->set_level(spdlog::level::debug);
 
 	FunctionalNode<LightMessage> a([](const LightMessage& msg) {
-		printf("call fun. status:%d\n", msg.status());
+		Logger->info(msg.DebugString());
 	});
 	nh.addNode("fun", a);
 
@@ -29,15 +29,15 @@ int main()
 	TcpNode tp;
 	tp.Listen("0.0.0.0:1212");
 
-	tp.Accept();
-	tp.Recv();
+	nh.addNode("tcp", tp);
+	while (true)
+	{
+		while (tp.Accept() <= 0)
+			;
 
-
-
-
-
-
-
+		while (tp.Recv() >= 0)
+			;
+	}
 
 
 

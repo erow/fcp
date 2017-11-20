@@ -66,7 +66,15 @@ public:
 		msg.set_src_uri(m_path.abs_uri());
 		msg.set_type(FcpMessage_FcpType::FcpMessage_FcpType_Publish);
 		msg.set_data(data.SerializeAsString());
-		handleMsg(msg);
+		
+		int rel = m_path.relation(uri);
+		if (rel == (int)relType::parent) {
+			msg.set_direction(1);
+			sendMsg(msg);
+		}
+		else {
+			handleMsg(msg);
+		}
 
 		msg.set_dst_uri(m_path.abs_uri(uri));
 		msg.set_direction(1);

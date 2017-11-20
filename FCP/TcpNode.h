@@ -10,7 +10,7 @@ class TcpNode :
 private:
 	SOCKET ListenSocket = INVALID_SOCKET;
 	SOCKET RemoteSocket = INVALID_SOCKET;
-
+	fd_set readfds, writefds, exceptfds;
 	int Tx(const std::string&);
 public:
 	TcpNode();
