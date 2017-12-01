@@ -23,8 +23,8 @@ public:
 	//path 需为绝对路径
 	Path(const string& path);
 	~Path();
-	int relation(const Path& path);
-	int relation(const string& abs_uri);
+	relType relation(const Path& path);
+	relType relation(const string& abs_uri);
 	const string abs_uri(const string& uri);
 	const string abs_uri();
 	Path cd(string&);

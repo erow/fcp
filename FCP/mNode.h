@@ -59,28 +59,31 @@ public:
 
 	template<typename T>
 	void publish(std::string uri, const T& data) {
-		Logger->debug("----------------------- \n\
-			publish from:{} to:{}\n",m_deal.c_str(), uri.c_str());
-		FcpMessage msg;
-		msg.set_dst_uri(m_path.abs_uri(uri)); 
-		msg.set_src_uri(m_path.abs_uri());
-		msg.set_type(FcpMessage_FcpType::FcpMessage_FcpType_Publish);
-		msg.set_data(data.SerializeAsString());
+		Logger->debug("publish begin----------------------- \n\
+			publish from:{} to:{}",m_deal.c_str(), uri.c_str());
+		FcpMessage fcp;
+		fcp.set_dst_uri(m_path.abs_uri(uri)); 
+		fcp.set_src_uri(m_path.abs_uri());
+		fcp.set_type(FcpMessage_FcpType::FcpMessage_FcpType_Publish);
+		fcp.set_data(data.SerializeAsString());
 		
-		int rel = m_path.relation(uri);
-		if (rel == (int)relType::parent) {
-			msg.set_direction(1);
-			sendMsg(msg);
+		relType rel = m_path.relation(uri);
+		if (rel == relType::child) {
+			fcp.set_direction(0);
+			handleMsg(fcp);
 		}
 		else {
-			handleMsg(msg);
+			fcp.set_direction(1);
+			sendMsg(fcp);
 		}
 
-		msg.set_dst_uri(m_path.abs_uri(uri));
-		msg.set_direction(1);
-		msg.set_type(FcpMessage_FcpType::FcpMessage_FcpType_ExtPublish);
+		Logger->debug("publishEx -----------------------");
+		fcp.set_dst_uri(m_path.abs_uri(uri));
+		fcp.set_direction(1);
+		fcp.set_type(FcpMessage_FcpType::FcpMessage_FcpType_ExtPublish);
 		//额外发送一个消息给master，由master转发给订阅者
-		sendMsg(msg);
+		sendMsg(fcp);
+		Logger->debug("publish end-----------------------");
 	}
 
 	template<typename T>

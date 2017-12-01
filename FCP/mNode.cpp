@@ -14,15 +14,17 @@ int DownNode_::handlePublish(const FcpMessage & fcp)
 		for (auto t : m_table) {
 			auto path = m_path.abs_uri(t.first);
 			if (inPath(uri, path)) {
+				FcpMessage  fcp1 = fcp;
+				fcp1.set_direction(0);
 				Logger->debug("{}/{}>>>{}", m_deal, fcp.type(), t.first);
-				t.second->handleMsg(fcp);
+				t.second->handleMsg(fcp1);
 				find = 1;
 			}
 		}
 		if (find)
-			return 0;
+			return 1;
 		else
-			return -1;
+			return 0;
 	}
 
 	return -2;
@@ -55,22 +57,22 @@ DownNode_::~DownNode_()
 int DownNode_::handleMsg(const FcpMessage & fcp)
 {
 	const string& uri = fcp.dst_uri();
-	int rel = m_path.relation(uri);
+	relType rel = m_path.relation(uri);
 
-	if (rel == (int)relType::parent) {
+	if (rel == relType::parent) {
 		sendMsg(fcp);
 	}
-	else if (rel == (int)relType::self) {
+	else if (rel == relType::self) {
 		handleLocal(fcp);
 	}
 	//与自己与父亲有关
-	else if (rel == (int)relType::brother) {
-		handleLocal(fcp);
+	else if (rel == relType::brother) {
+		//handleLocal(fcp);
 		if (fcp.direction() == 1)
 			sendMsg(fcp);
 	}
 	//与自己无关，只与孩子有关
-	else if (rel == (int)relType::child) {
+	else if (rel == relType::child) {
 		FcpMessage t_fcp = fcp;
 		t_fcp.set_direction(0);
 		handleLocal(t_fcp);

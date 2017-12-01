@@ -12,11 +12,20 @@ protected:
 	int handleMsg(const FcpMessage& msg)
 	{
 		assert((msg.type() == FcpMessage_FcpType::FcpMessage_FcpType_Publish) || msg.type() == FcpMessage_FcpType::FcpMessage_FcpType_ExtPublish);
-		T t;
-		t.ParseFromString(msg.data());
-		Logger->debug("exec from:{} to:{}\n", msg.src_uri().c_str(), msg.dst_uri().c_str());
-		m_fun(t);
-		return 0;
+
+		if (msg.direction() == 0) {
+			T t;
+			t.ParseFromString(msg.data());
+			Logger->debug("exec from:{} to:{}", msg.src_uri().c_str(), msg.dst_uri().c_str());
+			m_fun(t);
+			return 0;
+		}
+		else if (msg.direction() == 1)
+		{
+			sendMsg(msg);
+			return 1;
+		}
+
 	}
 	std::function<void(const T&)> m_fun;
 public:
@@ -33,6 +42,7 @@ public:
 	{
 		if(m_gateway)
 			return m_gateway->Rx(data);
+		return 0;
 	}
 	void setGateway(Node_* top) {
 		m_gateway = top;

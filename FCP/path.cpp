@@ -93,36 +93,50 @@ Path::~Path()
 {
 }
 
-int Path::relation(const Path & path)
+relType Path::relation(const Path & path)
 {
-	return false;
-}
-
-int Path::relation(const string & abs_uri)
-{
-	auto vec = split(abs_uri, "/");
-	int match = 1;
+	bool match = true;
+	auto vec = path.m_path;
 	for (int i = 0; i < m_path.size(); i++)
 	{
-		if (i + 1 >= vec.size())
-			return (int)relType::parent;
-		if (vec[i + 1] != m_path[i])
-			match = 0;
-		if (!belong(m_path[i], vec[i + 1]))
-			return (int)relType::parent;
+
+		if (vec[i] != m_path[i])
+			match = false;
+		if (!belong(m_path[i], vec[i]))
+			return relType::parent;
 	}
-	if (vec.size() == m_path.size() + 1)
-		return  match ? (int)relType::self : (int)relType::brother;
-	return (int)relType::child;
+	if (m_path.size() > vec.size())
+		return relType::parent;
+	if (vec.size() == m_path.size())
+		return match ? relType::self : relType::brother;
+	return relType::child;
+}
+
+relType Path::relation(const string & abs_uri)
+{
+	bool match = true;
+	auto vec = split(abs_uri,"/");
+	vec.erase(vec.begin());
+	for (int i = 0; i < m_path.size(); i++)
+	{
+		if (vec[i] != m_path[i])
+			match = false;
+		if (!belong(m_path[i], vec[i]))
+			return relType::parent;
+	}
+	if (m_path.size() > vec.size())
+		return relType::parent;
+	if (vec.size() == m_path.size())
+		return match ? relType::self : relType::brother;
+	return relType::child;
 }
 
 const string Path::abs_uri(const string & uri)
 {
 	auto path = m_path;
-
 	if (uri[0] == '/')
 		return uri;
-	else if ((uri.substr(0, 3) == "../") || (uri.substr(0, 2) == "./")) {
+	else if ((uri.substr(0, 2) == "./")|| (uri.substr(0, 3) == "../")) {
 		auto vec = split(uri, "/");
 		for (auto t : vec) {
 			if (t == "." || t.empty())
@@ -132,6 +146,12 @@ const string Path::abs_uri(const string & uri)
 			else
 				path.push_back(t);
 		}
+		if (path.size() == 0)
+			return "/";
+		string absuri;
+		for (auto t : path)
+			absuri += "/" + t;
+		return absuri;
 	}
 	else {
 		string absuri;
@@ -139,10 +159,6 @@ const string Path::abs_uri(const string & uri)
 			absuri += "/" + t;
 		return absuri + "/" + uri;
 	}
-	string absuri;
-	for (auto t : path)
-		absuri += "/" + t;
-	return absuri;
 }
 
 const string Path::abs_uri()
