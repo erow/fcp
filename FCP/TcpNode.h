@@ -1,7 +1,7 @@
 #pragma once
 #include "mNode.h"
 #include <winsock2.h>
-
+#include <mutex>
 #define DEFAULT_BUFLEN 512
 
 class TcpNode :
@@ -11,7 +11,10 @@ private:
 	SOCKET ListenSocket = INVALID_SOCKET;
 	SOCKET RemoteSocket = INVALID_SOCKET;
 	fd_set readfds, writefds, exceptfds;
+	bool block = 1;
 	int Tx(const std::string&);
+	static std::mutex m_mtx;
+	
 public:
 	TcpNode();
 	~TcpNode();
@@ -20,7 +23,8 @@ public:
 	int Accept();
 
 	int Recv();
-	
+	void AutoRun();
+	std::thread m_thread;
 };
 
 

@@ -1,43 +1,62 @@
 #include "mNode.h"
+#include "Node_.h"
 
+//int DownNode_::handlePublish(const FcpMessage & fcp)
+//{
+//	assert_log(fcp.type() == FcpMessage_FcpType::FcpMessage_FcpType_Publish);
+//	assert_log(fcp.direction() == 0);
+//	int find = 0;
+//	const string& uri = fcp.dst_uri();
+//	const string& src_node = fcp.src_node();
+//	const string& data = fcp.data();
+//	for (auto t : m_table) {
+//		auto path = m_path.toString(t.first);
+//		if (include(m_path,UriPath(path))) {
+//			Logger->debug("{}::{}>>>{}", m_path.toString(), "publish", path);
+//			t.second->handleMsg(fcp);
+//			find = 1;
+//		}
+//	}
+//	if (find)
+//		return 1;
+//	else
+//		return 0;
+//
+//}
 
-
-
-int DownNode_::handlePublish(const FcpMessage & fcp)
+int DownNode_::handleChild(const FcpMessage & fcp)
 {
-	assert(fcp.type() == FcpMessage_FcpType::FcpMessage_FcpType_Publish);
-	{
-		int find = 0;
-		const string& uri = fcp.dst_uri();
-		const string& src_uri = fcp.src_uri();
-		const string& data = fcp.data();
-		for (auto t : m_table) {
-			auto path = m_path.abs_uri(t.first);
-			if (inPath(uri, path)) {
-				FcpMessage  fcp1 = fcp;
-				fcp1.set_direction(0);
-				Logger->debug("{}/{}>>>{}", m_deal, fcp.type(), t.first);
-				t.second->handleMsg(fcp1);
+	FcpMessage new_fcp = fcp;
+	new_fcp.set_direction(0);
+	int find = 0;
+	const string& uri = fcp.dst_uri();
+	const string& src_node = fcp.src_uri();
+	const string& data = fcp.data();
+
+	UriPath uri_path(uri);
+	auto dir = uri_path[m_path.size()];
+	auto ptr = m_table.find(dir.m_name);
+	if (ptr != m_table.end()) {
+		auto& t = ptr->second;
+		for (int i = 0; i < t.size(); i++)
+		{
+			if (dir.include(i))
+			{
+				t[i]->sendMsg(new_fcp);
+				Logger->trace("{}::{}>>>{}", m_path.toString(), new_fcp.type(), dir.toString());
 				find = 1;
 			}
 		}
-		if (find)
-			return 1;
-		else
-			return 0;
 	}
 
-	return -2;
+	return find;
 }
 
-int DownNode_::handleLocal(const FcpMessage & fcp)
+int DownNode_::handleSelf(const FcpMessage & fcp)
 {
-	if (FcpMessage_FcpType::FcpMessage_FcpType_Publish == fcp.type())
-		return handlePublish(fcp);
-
-	return -1;
+	Logger->warn("handleLocal not implement");
+	return 0;
 }
-
 DownNode_::DownNode_()
 {
 	m_deal = "un init";
@@ -50,41 +69,38 @@ DownNode_::~DownNode_()
 }
 
 /*
-首先判断收到的消息是否属于自己，如过是则调用handlePublish
+首先判断收到的消息是否是谁的？，
+如为父节点，调用sendMsg
+为自己的，调用handleSelf；
+为子节点，调用handleChild；
+为兄弟节点，则需要判断方向
 /a:0/a 有 brother /a:0/a:*
 
 */
 int DownNode_::handleMsg(const FcpMessage & fcp)
 {
 	const string& uri = fcp.dst_uri();
-	relType rel = m_path.relation(uri);
-
-	if (rel == relType::parent) {
-		sendMsg(fcp);
+	int rel = relation(m_path, UriPath(uri));
+	Logger->info("Msg relation:{}", rel);
+	FcpMessage new_fcp = fcp;
+	if (rel &relType::PARENT) {
+		new_fcp.set_direction(1);
+		sendMsg(new_fcp);
 	}
-	else if (rel == relType::self) {
-		handleLocal(fcp);
+	if (rel &relType::SELF) {
+		handleSelf(new_fcp);
 	}
-	//与自己与父亲有关
-	else if (rel == relType::brother) {
-		//handleLocal(fcp);
-		if (fcp.direction() == 1)
-			sendMsg(fcp);
+	if (rel&relType::CHILD)
+	{
+		new_fcp.set_direction(0);
+		handleChild(new_fcp);
 	}
-	//与自己无关，只与孩子有关
-	else if (rel == relType::child) {
-		FcpMessage t_fcp = fcp;
-		t_fcp.set_direction(0);
-		handleLocal(t_fcp);
-	}
-
-	return 0;
+	return rel;
 }
 
 inline int DownNode_::sendMsg(const FcpMessage & msg)
 {
-	Logger->debug("<<<{}/{}",  m_deal,msg.type());
-	assert(msg.direction() == 1);
+	assert_log(msg.direction() == 1);
 	auto data = msg.SerializeAsString();
 	return Tx(std::to_string(data.size()) + ":" + data);
 }
@@ -109,23 +125,16 @@ TopNode_::~TopNode_()
 
 int TopNode_::handleMsg(const FcpMessage& msg)
 {
-	if (msg.direction() == 0)
-	{
-		sendMsg(msg);
-	}
-	//下节点无法处理的消息，转交网关
-	else 
-	{
-		if (m_gateway)
+	assert_log(msg.direction() == 1);
+	if (m_gateway)
 			m_gateway->handleMsg(msg);
-	}
 	return 0;
 }
 
 int TopNode_::sendMsg(const FcpMessage & msg)
 {
-	Logger->debug("{}/{}>>>", m_deal, msg.type());
-	assert(msg.direction() == 0);
+	//Logger->debug("{}/{}>>>", m_deal, msg.type());
+	assert_log(msg.direction() == 0);
 	auto data = msg.SerializeAsString();
 	return Tx(std::to_string(data.size()) + ":" + data);
 }
