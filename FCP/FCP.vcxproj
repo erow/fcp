@@ -148,7 +148,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AlongNode.h" />
+    <ClInclude Include="AloneNode.h" />
     <ClInclude Include="FunctionalNode.h" />
     <ClInclude Include="MasterNode.h" />
     <ClInclude Include="mNode.h" />
@@ -162,7 +162,7 @@
     <ClInclude Include="UType.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AlongNode.cpp" />
+    <ClCompile Include="AloneNode.cpp" />
     <ClCompile Include="FCP.cpp" />
     <ClCompile Include="FunctionalNode.cpp" />
     <ClCompile Include="MasterNode.cpp" />

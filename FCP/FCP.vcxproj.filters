@@ -48,7 +48,7 @@
     <ClInclude Include="UType.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="AlongNode.h">
+    <ClInclude Include="AloneNode.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -86,7 +86,7 @@
     <ClCompile Include="UType.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="AlongNode.cpp">
+    <ClCompile Include="AloneNode.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

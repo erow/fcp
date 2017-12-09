@@ -1,11 +1,11 @@
 #pragma once
 #include "Node_.h"
-class AlongNode :
+class AloneNode :
 	public Node_
 {
 public:
-	AlongNode(){}
-	~AlongNode(){}
+	AloneNode(){}
+	~AloneNode(){}
 protected:
 	//string m_uri;//为了解决转发URI的问题
 	std::map<string, std::vector<Node_*>> m_table;

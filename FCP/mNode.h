@@ -4,7 +4,7 @@
 
 
 class DownNode_ :
-	public AlongNode
+	public AloneNode
 {
 public:
 	DownNode_();

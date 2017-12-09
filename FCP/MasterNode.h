@@ -7,7 +7,7 @@
 #include "AlongNode.h"
 using std::string;
 class MasterNode :
-	public AlongNode
+	public AloneNode
 {
 protected:
 	std::map<string, string> m_subscriber_map;
@@ -48,7 +48,7 @@ protected:
 	{
 		FcpMessage new_fcp = fcp;
 		new_fcp.set_direction(0);
-		return AlongNode::handleMsg(new_fcp);
+		return AloneNode::handleMsg(new_fcp);
 	}
 
 public:

@@ -4,7 +4,7 @@
 #include"msg/fcp.pb.h"
 template <class T>
 class FunctionalNode :
-	public AlongNode
+	public AloneNode
 {
 protected:
 	typedef void(*FunctionType)(const T&);
