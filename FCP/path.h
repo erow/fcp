@@ -3,7 +3,7 @@
 #include<vector>
 #include<regex>
 #include <spdlog\spdlog.h>
-#define assert_log(condition) spdlog::get("fcp")->error_if(!(condition), "{}:{} expression:: "#condition,__FILE__,__LINE__)
+#define assert_log(condition) spdlog::get("fcp")->error_if(!(condition), "{}:{} expression:: " #condition,__FILE__,__LINE__),assert(condition)
 using std::string;
 using std::vector;
 /*
@@ -42,8 +42,10 @@ public:
 	string m_name;
 	vector<int> include_list, exclude_list;
 	uri_name(const string& name) {
-		assert_log(std::regex_match(name, reg_uri_name));
 		std::smatch base_match;
+		assert_log(std::regex_match(name, base_match, reg_uri_name));
+		std::regex_search(name, base_match, std::regex("[a-z]\\w*"));
+		m_name = base_match[0];
 		regex_search(name, base_match, std::regex(":\\d+(\\|\\d+)*"));
 		getDigitList(base_match.str(), include_list);
 		regex_search(name, base_match, std::regex("!\\d+(\\|\\d+)*"));
@@ -52,21 +54,26 @@ public:
 	string toString() const {
 		string str = m_name;
 		auto ptr = include_list.begin();
-		str += ":" + *ptr++;
-		while (ptr != include_list.end())
-		{
-			str += "|" + *ptr++;
+		if (ptr != include_list.end()) {
+			str += ":" + std::to_string(*ptr++);
+			while (ptr != include_list.end())
+			{
+				str += "|" + std::to_string(*ptr++);
+			}
 		}
-
 		ptr = exclude_list.begin();
-		str += "!" + *ptr++;
-		while (ptr != exclude_list.end())
+		if (ptr != exclude_list.end())
 		{
-			str += "|" + *ptr++;
+			str += "!" + std::to_string(*ptr++);
+			while (ptr != exclude_list.end())
+			{
+				str += "|" + std::to_string(*ptr++);
+			}
 		}
+		
 		return str;
 	}
-	bool include(const node_name& n) const {
+	bool is_include(const node_name& n) const {
 		if (n.m_name != m_name)
 			return false;
 		for (auto t : exclude_list)
@@ -79,7 +86,7 @@ public:
 			return false;
 		}
 	}
-	bool include(int n) const {
+	bool is_include(int n) const {
 		for (auto t : exclude_list)
 			if (t == n)	return false;
 		if (include_list.empty())
@@ -89,6 +96,9 @@ public:
 				if (t == n) return true;
 			return false;
 		}
+	}
+	void exclude(int n) {
+		exclude_list.push_back(n);
 	}
 	
 };
@@ -126,8 +136,11 @@ public:
 			m_path.push_back(T(str));
 	}
 	~Path() {}
-	const T operator[](int i) const{
+	const T& operator[](int i) const{
 		return m_path[i];
+	}
+	T* get(int i) {
+		return &m_path[i];
 	}
 	size_t size() const {
 		return m_path.size();
@@ -138,9 +151,13 @@ public:
 			str += "/" + t.toString();
 
 		if (uri.empty())
-			return str;
+			return str.empty() ? "/" : str;
 		if (uri[0] == '.')
+		{
 			return str + "/" + uri.substr(2);
+		}
+		else if (uri[0] == '/')
+			return uri;
 		else
 			return str + "/" + uri;
 	}
@@ -151,36 +168,46 @@ public:
 typedef Path<node_name> NodePath;
 typedef Path<uri_name> UriPath;
 
+/*
+possible value = (relType::PARENT+CHILD),(relType::PARENT+SELF),(relType::CHILD),(relType::PARENT),SELF
+*/
 static int relation(const Path<node_name>& node_path,const Path<uri_name>& uri_path) {
 	bool match = true;
-	if (uri_path.size() == node_path.size()) {
-		for(int i=0;i<uri_path.size();i++)
+	if (uri_path.size() >= node_path.size()) {
+		for(int i=0;i<node_path.size();i++)
 			if (!(node_path[i] == uri_path[i]))
 			{
-				match = false; break;
+				match = false; 
+				break;
 			}
+		if (match)
+			return uri_path.size() == node_path.size()?SELF:CHILD;
 	}
-	if (match)
-		return SELF;
 
 	match = true;
 	for (int i = 0; i < node_path.size(); i++)
 	{
 		if (i >= uri_path.size())
-			return PARENT;
-		if (!uri_path[i].include(node_path[i]))
+			return relType::PARENT;
+		if (!uri_path[i].is_include(node_path[i]))
 		{
-			return PARENT;
+			match = false;
 		}
 	}
-	return node_path.size() == uri_path.size() ? relType::PARENT+ relType::SELF :relType::CHILD;
+	if(node_path.size() == uri_path.size())
+		return match? relType::PARENT + relType::SELF : relType::PARENT;
+	else if (node_path.size() < uri_path.size())
+		return match ? relType::PARENT + relType::CHILD : relType::PARENT;
+	else
+		return relType::PARENT;
+	
 }
-static bool include(const Path<node_name>& node_path, const Path<uri_name>& uri_path) {
+static bool is_include(const Path<node_name>& node_path, const Path<uri_name>& uri_path) {
 	for (int i = 0; i < uri_path.size(); i++)
 	{
 		if (i >= node_path.size())
 			break;
-		if (!uri_path[i].include(node_path[i]))
+		if (!uri_path[i].is_include(node_path[i]))
 		{
 			return false;
 		}

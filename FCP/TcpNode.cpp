@@ -57,7 +57,7 @@ int TcpNode::Listen(const string & deal) {
 	{
 		u_long ioctl_opt = 1;
 		if (ioctlsocket(ListenSocket, FIONBIO, &ioctl_opt) == SOCKET_ERROR) {
-			fprintf(stderr, "ioctlsocket failed %d\n", WSAGetLastError());
+			fprintf(stderr, "ioctlsocket failed {}\n", WSAGetLastError());
 			WSACleanup();
 			return -1;
 		}
@@ -83,7 +83,7 @@ int TcpNode::Accept() {
 		timeval t;//·Ç×èÈû£¬0µÈ´ý
 		auto  i = select(0, &readfds, &writefds, &exceptfds, &t);
 		if (i == SOCKET_ERROR) {
-			fprintf(stderr, "select failed %d\n", WSAGetLastError());
+			fprintf(stderr, "select failed {}\n", WSAGetLastError());
 			return i;
 		}
 		else if (i == 0) {
@@ -194,8 +194,10 @@ void TcpNode::AutoRun()
 
 int TcpDownNode::Tx(const std::string & data) {
 	if (m_socket == INVALID_SOCKET) {
-		printf("accept failed with error: %d\n", WSAGetLastError());
+		Logger->debug("accept failed with error: {}\n", WSAGetLastError());
 		closesocket(m_socket);
+		Connect(m_deal);
+		Logger->info("re connected!");
 		return -1;
 	}
 	else
@@ -205,7 +207,7 @@ int TcpDownNode::Tx(const std::string & data) {
 }
 
 int TcpDownNode::Connect(const string & deal) {
-
+	m_deal = deal;
 	int t = deal.find(':');
 	string ip = deal.substr(0, t);
 	string port = deal.substr(t + 1);
@@ -218,12 +220,12 @@ int TcpDownNode::Connect(const string & deal) {
 	m_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP); //Create socket
 	if (m_socket == INVALID_SOCKET)
 	{
-		printf("Couldn't create the socket\n"); //Couldn't create the socket
+		Logger->debug("Couldn't create the socket\n"); //Couldn't create the socket
 	}
 
 	if (connect(m_socket, (SOCKADDR *)&target, sizeof(target)) == SOCKET_ERROR)
 	{
-		printf("Couldn't connect %s\n", m_deal.c_str());
+		Logger->debug("Couldn't connect {}\n", m_deal.c_str());
 	}
 	return 1;
 }
@@ -236,7 +238,7 @@ int TcpDownNode::Recv() {
 	do {
 		iResult = recv(m_socket, recvbuf, recvbuflen, 0);
 		if (iResult > 0) {
-			printf("Bytes received: %d\n", iResult);
+			Logger->debug("Bytes received: {}\n", iResult);
 			string data;
 			for (int i = 0; i < iResult; i++)
 				data += recvbuf[i];

@@ -22,6 +22,47 @@ std::shared_ptr<spdlog::logger> Logger = std::make_shared<spdlog::logger>("fcp",
 MasterNode nh;
 void test() {
 	PathTest();
+	 
+	FunctionalNode<SType> f1([](const SType& a) {
+		Logger->info(a.SerializeAsString());
+		});
+	FunctionalNode<SType> f2([](const SType& a) {
+		Logger->info(a.SerializeAsString());
+	});
+	FunctionalNode<SType> f3([](const SType& a) {
+		Logger->info(a.SerializeAsString());
+	});
+	FunctionalNode<SType> sub([](const SType& a) {
+		Logger->info(a.SerializeAsString());
+	});
+	TcpNode tcp;
+	
+	nh.addNode("a", f1);
+	nh.addNode("a", f2);
+	f1.addNode("a", f3);
+	f3.addSubscribe("/a:0", sub);
+
+
+	f1.addNode("tcp", tcp);
+	SType data;
+	data="/a";
+	//nh.publish("/a", data);
+
+	//f1.publish("/a:0", data="/a:0");
+
+	//f2.publish("/a:0/a", data = "/a:0/a");
+	f3.publish("/a:0", data = "hello");
+
+	string deal = "0.0.0.0:1314";
+	tcp.Listen(deal);
+	
+	while (true)
+	{
+		tcp.Accept();
+		if (tcp.Recv() < 0)
+			continue;
+	}
+	
 }
 int main()
 {
@@ -30,13 +71,14 @@ int main()
 	Logger->set_level(spdlog::level::trace);
 	//sinks[0]->set_level(spdlog::level::info);
 	//spdlog::set_pattern("[%D %H:%M:%S.%f][%l]%v");
-	test();
+	
 	/*win init socket*/
 	WSADATA wsaData;
 	int iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (iResult != 0) {
-		printf("WSAStartup failed with error: %d\n", iResult);
+		Logger->debug("WSAStartup failed with error: %d\n", iResult);
 	}
+	//test();
 	TcpNode tcp;
 	SType any;
 	TcpNode asr;

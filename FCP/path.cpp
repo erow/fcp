@@ -26,10 +26,15 @@ void getDigitList(string str, vector<int>& result_list) {
 
 
 void PathTest() {
-	string a, b;
-	assert_log(relation(NodePath("/a:1"), UriPath("/a")) == (relType::PARENT+CHILD));
+	UriPath a("/a:0");
+	assert_log(a.toString("a") == "/a:0/a");
+	assert_log(a.toString("/a") == "/a");
+	assert_log(a.toString("./a") == "/a:0/a");
+	//assert_log(a.toString("../a") == "/a"); not supported for now
+	assert_log(relation(NodePath("/a:1"), UriPath("/a")) == (relType::PARENT+ SELF));
 	assert_log(relation(NodePath("a:1"), UriPath("/a!1")) == relType::PARENT);
-	assert_log(relation(NodePath("/a:1/b:0"), UriPath("/a/b:0")) == (relType::PARENT + CHILD));
+	assert_log(relation(NodePath("/a:1/b:0"), UriPath("/a/b:0")) == (relType::PARENT + SELF));
+	assert_log(relation(NodePath("/a:1/b:0"), UriPath("/a/b:0/c")) == (relType::PARENT + CHILD));
 	assert_log(relation(NodePath("/a:1/b:0"), UriPath("/a:1/b:0!1")) == relType::SELF);
 	assert_log(relation(NodePath("/a:1/b:0"), UriPath("/a:1/b:0!1/c")) == relType::CHILD);
 

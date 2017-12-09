@@ -11,7 +11,7 @@
 //	const string& data = fcp.data();
 //	for (auto t : m_table) {
 //		auto path = m_path.toString(t.first);
-//		if (include(m_path,UriPath(path))) {
+//		if (is_include(m_path,UriPath(path))) {
 //			Logger->debug("{}::{}>>>{}", m_path.toString(), "publish", path);
 //			t.second->handleMsg(fcp);
 //			find = 1;
@@ -24,39 +24,7 @@
 //
 //}
 
-int DownNode_::handleChild(const FcpMessage & fcp)
-{
-	FcpMessage new_fcp = fcp;
-	new_fcp.set_direction(0);
-	int find = 0;
-	const string& uri = fcp.dst_uri();
-	const string& src_node = fcp.src_uri();
-	const string& data = fcp.data();
 
-	UriPath uri_path(uri);
-	auto dir = uri_path[m_path.size()];
-	auto ptr = m_table.find(dir.m_name);
-	if (ptr != m_table.end()) {
-		auto& t = ptr->second;
-		for (int i = 0; i < t.size(); i++)
-		{
-			if (dir.include(i))
-			{
-				t[i]->sendMsg(new_fcp);
-				Logger->trace("{}::{}>>>{}", m_path.toString(), new_fcp.type(), dir.toString());
-				find = 1;
-			}
-		}
-	}
-
-	return find;
-}
-
-int DownNode_::handleSelf(const FcpMessage & fcp)
-{
-	Logger->warn("handleLocal not implement");
-	return 0;
-}
 DownNode_::DownNode_()
 {
 	m_deal = "un init";
@@ -77,38 +45,12 @@ DownNode_::~DownNode_()
 /a:0/a сп brother /a:0/a:*
 
 */
-int DownNode_::handleMsg(const FcpMessage & fcp)
-{
-	const string& uri = fcp.dst_uri();
-	int rel = relation(m_path, UriPath(uri));
-	Logger->info("Msg relation:{}", rel);
-	FcpMessage new_fcp = fcp;
-	if (rel &relType::PARENT) {
-		new_fcp.set_direction(1);
-		sendMsg(new_fcp);
-	}
-	if (rel &relType::SELF) {
-		handleSelf(new_fcp);
-	}
-	if (rel&relType::CHILD)
-	{
-		new_fcp.set_direction(0);
-		handleChild(new_fcp);
-	}
-	return rel;
-}
 
-inline int DownNode_::sendMsg(const FcpMessage & msg)
+int DownNode_::sendMsg(const FcpMessage & msg)
 {
 	assert_log(msg.direction() == 1);
 	auto data = msg.SerializeAsString();
 	return Tx(std::to_string(data.size()) + ":" + data);
-}
-
-
-void DownNode_::unregister(const std::string & uri)
-{
-
 }
 
 
@@ -123,23 +65,3 @@ TopNode_::~TopNode_()
 {
 }
 
-int TopNode_::handleMsg(const FcpMessage& msg)
-{
-	assert_log(msg.direction() == 1);
-	if (m_gateway)
-			m_gateway->handleMsg(msg);
-	return 0;
-}
-
-int TopNode_::sendMsg(const FcpMessage & msg)
-{
-	//Logger->debug("{}/{}>>>", m_deal, msg.type());
-	assert_log(msg.direction() == 0);
-	auto data = msg.SerializeAsString();
-	return Tx(std::to_string(data.size()) + ":" + data);
-}
-
-void TopNode_::setGateway(Node_ * top)
-{
-	m_gateway = top;
-}

@@ -1,86 +1,86 @@
 #pragma once
 #include"Node_.h"
+#include "AlongNode.h"
 
 
-class TopNode_ :
-	public Node_ 
-{
-protected:
-	Node_* m_gateway = nullptr;
-public:
-	TopNode_();
-	~TopNode_();
-	virtual int handleMsg(const FcpMessage& msg);
-	int sendMsg(const FcpMessage & msg);
-	void setGateway(Node_* top);
-
-};
 class DownNode_ :
-	public Node_
+	public AlongNode
 {
-protected:
-	//string m_uri;//为了解决转发URI的问题
-	std::map<string,std::vector<Node_*>> m_table;
-
-	//int handlePublish(const FcpMessage & fcp);
-	int handleChild(const FcpMessage & fcp);
-	virtual int handleSelf(const FcpMessage & fcp);
 public:
 	DownNode_();
 	~DownNode_();
-	virtual int handleMsg(const FcpMessage& fcp);
-	int sendMsg(const FcpMessage & msg);
-	//user api
-	virtual void unregister(const std::string& uri);
-
-
-	void addSubscribe(std::string dst_uri, Node_& node)
+protected:
+	
+	virtual int handleSelf(const FcpMessage & fcp)
 	{
-		
-		int label_num = m_table["subscriber"].size();
-		m_table["subscriber"].push_back(&node);
-		string call_uri = m_path.toString("subscriber:" + std::to_string(label_num));
-
-		FcpMessage msg;
-		msg.set_dst_uri(m_path.toString(dst_uri));
-		msg.set_src_uri(m_path.toString(call_uri));
-		msg.set_type(FcpMessage_FcpType_SUBSCRIBE);
-		msg.set_data("");
-		sendMsg(msg);
-
-		Logger->debug("Subscribe {} by {}", dst_uri, call_uri);
+		Logger->warn("handleLocal not implement");
+		return 0;
 	}
 
-	template<typename T>
-	void publish(std::string uri, const T& data) {
-		Logger->debug("publish begin----------------------- \n\
-			publish from:{} to:{}",m_deal.c_str(), uri.c_str());
-		FcpMessage fcp;
-		fcp.set_dst_uri(m_path.abs_uri(uri)); 
-		fcp.set_src_uri(m_path.abs_uri());
-		fcp.set_type(FcpMessage_FcpType::FcpMessage_FcpType_Publish);
-		fcp.set_data(data.SerializeAsString());
-		handleMsg(fcp);
-
-		Logger->debug("publishEx -----------------------");
-		fcp.set_dst_uri(m_path.abs_uri(uri));
-		fcp.set_direction(1);
-		fcp.set_type(FcpMessage_FcpType::FcpMessage_FcpType_ExtPublish);
-		//额外发送一个消息给master，由master转发给订阅者
-		sendMsg(fcp);
-		Logger->debug("publish end-----------------------");
-	}
-
-	void addNode(std::string node_name, Node_& node) {
-		if (m_table.find(node_name) != m_table.end())
+	int Rx(const std::string &data)
+	{
+		if (m_buffer.empty() && msg_size == 0)
 		{
-			int label_num = m_table[node_name].size();
-			m_table[node_name].push_back(&node);
-			node.setGateway(this);
-			string path = m_path.toString(node_name + ":" + std::to_string(label_num));
-			node.setPath(path);
-			Logger->info("addNode to {}", path);
+			for (int i = 0; i < data.size(); i++)
+			{
+				if (data[i] == ':') {
+					msg_size = std::stoi(m_buffer);
+					m_buffer.clear();
+					//Logger->trace("recv a msg with size of {}", msg_size);
+					return Rx(data.substr(i + 1));
+				}
+				else {
+					m_buffer += data[i];
+				}
+			}
 		}
+		else
+		{
+			assert_log(m_buffer.size() <= msg_size);
+			for (int i = 0; i < data.size(); i++)
+			{
+				m_buffer.push_back(data[i]);
+				if (m_buffer.size() == msg_size)
+				{
+					FcpMessage msg;
+					msg.ParseFromString(m_buffer);
+					Logger->trace("recv msg:{}", msg_size);
+					handleMsg(msg);
+					m_buffer.clear();
+					msg_size = 0;
+					return 1 + Rx(data.substr(i + 1));
+				}
+			}
+			return 0;
+		}
+		return 0;
 	}
+
+	virtual int Tx(const std::string &data) = 0;
+public:
+	int sendMsg(const FcpMessage & msg);
 };
 
+class TopNode_ :
+	public DownNode_
+{
+protected:
+public:
+	TopNode_();
+	~TopNode_();
+	virtual int handleMsg(const FcpMessage& msg)
+	{
+		assert_log(msg.direction() == 1);
+		if (m_gateway)
+			m_gateway->diliverMsg(msg);
+		return 0;
+	}
+	int sendMsg(const FcpMessage & msg)
+	{
+		//Logger->debug("{}/{}>>>", m_deal, msg.type());
+		assert_log(msg.direction() == 0);
+		auto data = msg.SerializeAsString();
+		return Tx(std::to_string(data.size()) + ":" + data);
+	}
+
+};
