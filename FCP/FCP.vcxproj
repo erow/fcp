@@ -77,7 +77,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\wasai\Documents\Visual Studio 2017\Projects\FCP\packages\spdlog-0.14.0\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\wasai\Documents\Visual Studio 2017\Projects\FCP\packages\json;C:\Users\wasai\Documents\Visual Studio 2017\Projects\FCP\packages\spdlog-0.14.0\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -107,9 +107,11 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalIncludeDirectories>C:\Users\wasai\Documents\Visual Studio 2017\Projects\FCP\packages\paho.mqtt.c-master\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>paho-mqtt3c.lib;paho-mqtt3a.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -152,8 +154,7 @@
     <ClInclude Include="FunctionalNode.h" />
     <ClInclude Include="MasterNode.h" />
     <ClInclude Include="mNode.h" />
-    <ClInclude Include="msg\fcp.pb.h" />
-    <ClInclude Include="msg\light.pb.h" />
+    <ClInclude Include="MQTTMaster.h" />
     <ClInclude Include="Node_.h" />
     <ClInclude Include="path.h" />
     <ClInclude Include="stdafx.h" />
@@ -167,18 +168,20 @@
     <ClCompile Include="FunctionalNode.cpp" />
     <ClCompile Include="MasterNode.cpp" />
     <ClCompile Include="mNode.cpp" />
-    <ClCompile Include="msg\fcp.pb.cc" />
-    <ClCompile Include="msg\light.pb.cc" />
     <ClCompile Include="Node_.cpp" />
     <ClCompile Include="path.cpp" />
     <ClCompile Include="stdafx.cpp" />
-    <ClCompile Include="TcpNode.cpp" />
     <ClCompile Include="UType.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\README.md" />
     <None Include="msg\fcp.proto" />
     <None Include="msg\light.proto" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\packages\paho.mqtt.c-master\Windows Build\paho-mqtt3c\paho-mqtt3c.vcxproj">
+      <Project>{172f8995-c780-44a1-996c-c7949b4db35a}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

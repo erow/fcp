@@ -1,30 +1,6 @@
 #include "mNode.h"
 #include "Node_.h"
 
-//int DownNode_::handlePublish(const FcpMessage & fcp)
-//{
-//	assert_log(fcp.type() == FcpMessage_FcpType::FcpMessage_FcpType_Publish);
-//	assert_log(fcp.direction() == 0);
-//	int find = 0;
-//	const string& uri = fcp.dst_uri();
-//	const string& src_node = fcp.src_node();
-//	const string& data = fcp.data();
-//	for (auto t : m_table) {
-//		auto path = m_path.toString(t.first);
-//		if (is_include(m_path,UriPath(path))) {
-//			Logger->debug("{}::{}>>>{}", m_path.toString(), "publish", path);
-//			t.second->handleMsg(fcp);
-//			find = 1;
-//		}
-//	}
-//	if (find)
-//		return 1;
-//	else
-//		return 0;
-//
-//}
-
-
 DownNode_::DownNode_()
 {
 	m_deal = "un init";
@@ -46,11 +22,17 @@ DownNode_::~DownNode_()
 
 */
 
-int DownNode_::sendMsg(const FcpMessage & msg)
+int DownNode_::sendMsg(const json & msg)
 {
-	assert_log(msg.direction() == 1);
-	auto data = msg.SerializeAsString();
-	return Tx(std::to_string(data.size()) + ":" + data);
+	assert_log(msg["direction"] == 1);
+	auto data = msg.dump();
+	int len = data.size();
+	binary head(4 + len);
+	head[3] = EncodeType::JSON;
+	(*((unsigned int*)&m_buffer[0])) = len;
+	for (int i = 0; i < len; i++)
+		head[i + 4] = data[i];
+	return Tx(head);
 }
 
 

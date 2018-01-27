@@ -1,6 +1,18 @@
 #pragma once
 #include<string>
+#include <vector>
+enum EncodeType {
+	JSON=0,
+	PB
+};
 
+enum FcpMessage_FcpType {
+	FcpMessage_FcpType_Publish = 0,
+	FcpMessage_FcpType_ExtPublish = 2,
+	FcpMessage_FcpType_SUBSCRIBE = 3,
+	FcpMessage_FcpType_UNSUBSCRIBE = 4
+};
+using binary= std::vector<unsigned char>;
 class UType
 {
 protected:

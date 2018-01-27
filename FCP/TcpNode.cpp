@@ -6,6 +6,7 @@
 std::mutex TcpNode::m_mtx;
 int TcpNode::Tx(const std::string & data)
 {
+	m_mtx.lock();
 	if (RemoteSocket == INVALID_SOCKET) {
 		Logger->warn("error:{}. Tx without connection ", WSAGetLastError());
 		//closesocket(ListenSocket);
@@ -16,6 +17,7 @@ int TcpNode::Tx(const std::string & data)
 		send(RemoteSocket, data.c_str(), data.size(), 0);
 		Logger->info("send {}", data.size());
 	}
+	m_mtx.unlock();
 	return 0;
 }
 
@@ -24,8 +26,7 @@ TcpNode::TcpNode()
 	m_information = "Tcp node";
 
 	// Create a SOCKET for connecting to server
-	ListenSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-
+	
 }
 
 
@@ -34,6 +35,8 @@ TcpNode::~TcpNode()
 }
 
 int TcpNode::Listen(const string & deal) {
+	ListenSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+
 	m_deal = deal;
 	int t = deal.find(':');
 	string ip = deal.substr(0,t);
@@ -51,6 +54,7 @@ int TcpNode::Listen(const string & deal) {
 	addr.sin_addr.s_addr = inet_addr(ip.c_str());
 	// Setup the TCP listening socket
 	int iResult = bind(ListenSocket, (LPSOCKADDR)&addr, sizeof(addr));
+	int c = WSAGetLastError();
 	assert_log(iResult != SOCKET_ERROR);
 	listen(ListenSocket, 1);
 	if (!block)

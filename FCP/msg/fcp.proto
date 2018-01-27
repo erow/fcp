@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-message FcpMessage {
+message json {
     string dst_uri=1;
 	string src_uri=4;
 	enum FcpType{

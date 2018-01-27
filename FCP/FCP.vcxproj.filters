@@ -24,16 +24,10 @@
     <ClInclude Include="Node_.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="msg\fcp.pb.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="path.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="mNode.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="msg\light.pb.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="MasterNode.h">
@@ -51,6 +45,9 @@
     <ClInclude Include="AloneNode.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="MQTTMaster.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -59,34 +56,25 @@
     <ClCompile Include="FCP.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="msg\fcp.pb.cc">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="path.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Node_.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="mNode.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="FunctionalNode.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="msg\light.pb.cc">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="MasterNode.cpp">
-      <Filter>头文件</Filter>
-    </ClCompile>
-    <ClCompile Include="TcpNode.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="UType.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="AloneNode.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="MasterNode.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="mNode.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

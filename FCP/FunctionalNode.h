@@ -1,20 +1,20 @@
 #pragma once
-#include "AlongNode.h"
+#include "AloneNode.h"
 #include<functional>
-#include"msg/fcp.pb.h"
+
 template <class T>
 class FunctionalNode :
 	public AloneNode
 {
 protected:
 	typedef void(*FunctionType)(const T&);
-	int handleSelf(const FcpMessage& msg)
+	int handleSelf(const json& msg)
 	{
-		if ((msg.type() == FcpMessage_FcpType::FcpMessage_FcpType_Publish) ||
-			msg.type() == FcpMessage_FcpType::FcpMessage_FcpType_ExtPublish) {
+		if ((msg["type"] == FcpMessage_FcpType::FcpMessage_FcpType_Publish) ||
+			msg["type"] == FcpMessage_FcpType::FcpMessage_FcpType_ExtPublish) {
 			T t;
-			t.ParseFromString(msg.data());
-			Logger->debug("{} exec from {} ", m_path.toString(), msg.src_uri());
+			t.ParseFromString(msg["data"]);
+			Logger->debug("{} exec from {} ", m_path.toString(), msg["src_uri"].get<std::string>());
 			m_fun(t);
 			return 0;
 		}
